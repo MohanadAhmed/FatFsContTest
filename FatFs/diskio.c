@@ -39,7 +39,7 @@ DSTATUS disk_initialize (
 )
 {
 	DSTATUS stat;
-	printf(__FUNCTION__);
+	//printf(__FUNCTION__"\n");
 	file = fopen("test.bin", "r+b");
 	printf(__FUNCTION__);
 	if (!file){
@@ -54,7 +54,7 @@ DSTATUS disk_initialize (
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
-
+extern int _lastSectorNum;
 DRESULT disk_read (
 	BYTE pdrv,		/* Physical drive nmuber to identify the drive */
 	BYTE *buff,		/* Data buffer to store read data */
@@ -62,17 +62,18 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-	printf(__FUNCTION__);
+	//printf(__FUNCTION__"\n");
+	_lastSectorNum = sector;
 	if(!file){
 		printf("Error\n");
 		return 1;
 	}else{
 		int n;
 		if(fseek(file, sector * 512, SEEK_SET) == 0){
-			printf("seek ok\n");
+			//printf("seek ok\n");
 			int r;
 			r = fread(buff, 1, count*512, file);
-			printf("\t sector = %d, r = %d, count = %d\n", sector, r/512, count);
+			//printf("\t sector = %d, r = %d, count = %d\n", sector, r/512, count);
 			if( (r/512) == count) return 0; else return 1;
 		}else{
 			return 1;
@@ -95,13 +96,16 @@ DRESULT disk_write (
 	UINT count			/* Number of sectors to write */
 )
 {
-	printf(__FUNCTION__);
+	//printf(__FUNCTION__"\n");
+	_lastSectorNum = sector;
 	if(!file){
 		printf("Error");
 	}else{
 		int n;
 		fseek(file, sector * 512, SEEK_SET);
-		fwrite(buff, 1, count, file);
+		int r = fwrite(buff, 1, count*512, file);
+		//printf("\t sector = %d, r = %d, count = %d\n", sector, r/512, count);
+		if( (r/512) == count) return 0; else return 1;
 	}
 }
 
@@ -118,7 +122,7 @@ DRESULT disk_ioctl (
 	void *buff		/* Buffer to send/receive control data */
 )
 {
-	printf(__FUNCTION__);
+	//printf(__FUNCTION__"\n");
 	switch(cmd){
 		case CTRL_SYNC:
 			fflush(file);
