@@ -17,7 +17,7 @@ int packet_counter = 0;
 
 int _lastSectorNum = 0;
 
-const int SIZE_1G = 1024*1024;
+const int SIZE_1G = 1024*1024*500;
 
 unsigned int StartNewSigrawFile() {
 	uint32_t start_block;
@@ -31,15 +31,15 @@ unsigned int StartNewSigrawFile() {
 	if (retx == 0) {
 		unsigned int bw, ret1, ret2, ret3 = 0;
 		ret1 = 0;
-		ret1 = f_expand(&MyFile, 2 * SIZE_1G, 1);
+		ret1 = f_expand(&MyFile, 2 * SIZE_1G, 0);
 		fprintf(stdout,  "expand ret = %d\r\n", ret1);
 		//HAL_UART_Transmit(&huart3, (uint8_t*) sbuf, strlen(sbuf), 0xFFFFF);
 		ret2 = f_write(&MyFile, sbuf, BLOCKSIZE, &bw);
 		fprintf(stdout,  "write ret = %d\r\n", ret2);
 		//HAL_UART_Transmit(&huart3, (uint8_t*) sbuf, strlen(sbuf), 0xFFFFF);
 		start_block = _lastSectorNum;
-		ret3 = f_close(&MyFile);
-		fprintf(stdout,  "close ret = %d\r\n", ret3);
+		ret3 = 0;//f_close(&MyFile);
+		//fprintf(stdout,  "close ret = %d\r\n", ret3);
 		//HAL_UART_Transmit(&huart3, (uint8_t*) sbuf, strlen(sbuf), 0xFFFFF);
 		if (ret1 == 0 && ret2 == 0 && ret3 == 0 && bw > 0) {
 			fprintf(stdout,  "sector address = %u\r\n", start_block);
@@ -63,7 +63,7 @@ void CloseSigrawFile(uint32_t packet_counter) {
 	fprintf(stdout,  "CloseSigrawFile = %s\r\n", fxname);
 	//HAL_UART_Transmit(&huart3, (uint8_t*) sbuf, strlen(sbuf), 0xFFFFF);
 
-	ret1 = f_open(&MyFile, fxname, FA_WRITE);
+	ret1 = 0;//f_open(&MyFile, fxname, FA_WRITE);
 	if (ret1 == 0) {
 		ret1 = f_lseek(&MyFile, packet_counter * RND_HALF_BUFFER_SIZE);
 		fprintf(stdout,  "lseek val = %d, ret = %d\r\n", (int)packet_counter, ret1);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 		
 		for(int i = 0; i < 3; i++){
 			StartNewSigrawFile();
-			packet_counter = 10;
+			packet_counter = 100;
 			CloseSigrawFile(packet_counter);
 			fno++;
 		}
